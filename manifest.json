@@ -14,6 +14,12 @@
       "type": "git",
       "url": "https://github.com/devwinsoft/devarc.encrypt.git"
     },
+    "samples": [
+        {
+            "displayName": "Devarc Encrypt Test",
+            "path": "Samples~/TestEncrypt"
+        }
+    ],
     "keywords": [
         "Devarc",
         "Crypto",
