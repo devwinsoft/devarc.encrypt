@@ -17,7 +17,7 @@
     "samples": [
         {
             "displayName": "Encrypt Test",
-            "description": "",
+            "description": "Encrypt Test",
             "path": "Samples~/Test"
         }
     ],
