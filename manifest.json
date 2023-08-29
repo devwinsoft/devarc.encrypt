@@ -16,7 +16,8 @@
     },
     "samples": [
         {
-            "displayName": "Devarc Encrypt Test",
+            "displayName": "Encrypt Test",
+            "description": "",
             "path": "Samples~/TestEncrypt"
         }
     ],
