@@ -7,6 +7,13 @@
   "description": "Simple encrypt library for Unity.",
   "license": "Apache-2.0",
   "category": "Scripting",
+  "samples": [
+    {
+        "displayName": "Encrypt Test",
+        "description": "",
+        "path": "Samples~/Test"
+    }
+  ],
   "keywords": [
     "Devarc",
     "Crypto",
