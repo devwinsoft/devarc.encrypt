@@ -1,0 +1,14 @@
+{
+  "name": "com.devwinsoft.devarc.encrypt",
+  "displayName": "Devarc encrypt library.",
+  "version": "1.0.0",
+  "unity": "2019.3",
+  "description": "Simple encryption for Unity.",
+  "keywords": [
+    "Devarc",
+    "Crypto",
+    "Encrypt"
+  ],
+  "license": "Apache-2.0",
+  "category": "Scripting"
+}
