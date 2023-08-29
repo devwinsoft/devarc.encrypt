@@ -34,30 +34,6 @@ namespace Devarc
             return value;
         }
 
-#if UNITY_EDITOR
-        public static int GetCRC(SerializedProperty property)
-        {
-            if (property == null)
-            {
-                return 0;
-            }
-            switch (property.propertyType)
-            {
-                case SerializedPropertyType.Integer:
-                case SerializedPropertyType.Enum:
-                    return GetCRC(property.intValue);
-                case SerializedPropertyType.Float:
-                    return GetCRC(property.floatValue);
-                case SerializedPropertyType.String:
-                    return GetCRC(property.stringValue);
-                case SerializedPropertyType.ObjectReference:
-                    return GetCRC(property.objectReferenceValue.name);
-                default:
-                    return 0;
-            }
-        }
-#endif
-
         public static int GetCRC(string _value)
         {
             byte[] data = Encoding.UTF8.GetBytes(_value);
@@ -85,99 +61,6 @@ namespace Devarc
                 crc += (int)_value[i];
             }
             return crc;
-        }
-
-
-        public static bool EncryptFile(string _readFilePath, string _writeFilePath)
-        {
-            if (File.Exists(_readFilePath) == false)
-            {
-                Debug.LogError("Cannot find file: " + _readFilePath);
-                return false;
-            }
-
-            try
-            {
-                FileStream rfs = File.OpenRead(_readFilePath);
-                FileStream wfs = File.OpenWrite(_writeFilePath);
-                byte[] bufRead = new byte[1024];
-                byte[] bufWrite = new byte[1024];
-                int read = 0;
-                int crc = 0;
-
-                byte[] header = new byte[4] { 0, 0, 0, 0 };
-                wfs.Write(header, 0, 4); // 파일 SIZE (일단 아무 값이나 쓴다)
-                wfs.Write(header, 0, 4); // CRC
-                do
-                {
-                    read = rfs.Read(bufRead, 0, bufRead.Length);
-                    if (read > 0)
-                    {
-                        Encrypt(bufRead, ref bufWrite, read);
-                        wfs.Write(bufWrite, 0, read);
-                        crc += GetCRC(bufRead, read);
-                    }
-                } while (read > 0);
-
-                wfs.Position = 0;
-                wfs.Write(BitConverter.GetBytes(read), 0, 4); // 파일 SIZE
-                wfs.Write(BitConverter.GetBytes(crc), 0, 4); // CRC
-                wfs.Close();
-                wfs = null;
-                rfs.Close();
-                rfs = null;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex.Message);
-                return false;
-            }
-            return true;
-        }
-
-        public static bool DecryptFile(string _readFilePath, string _writeFilePath)
-        {
-            if (File.Exists(_readFilePath) == false)
-            {
-                Debug.LogError("Cannot find file: " + _readFilePath);
-                return false;
-            }
-
-            try
-            {
-                FileStream rfs = File.OpenRead(_readFilePath);
-                FileStream wfs = File.OpenWrite(_writeFilePath);
-                byte[] bufRead = new byte[1024];
-                byte[] bufWrite = new byte[1024];
-                int read = 0;
-                int fileCRC = 0;
-                int crc = 0;
-
-                rfs.Read(bufRead, 0, 4); // 파일 SIZE (일단 아무 값이나 쓴다)
-                rfs.Read(bufRead, 0, 4); // CRC
-                fileCRC = BitConverter.ToInt32(bufRead, 0);
-                do
-                {
-                    read = rfs.Read(bufRead, 0, bufRead.Length);
-                    if (read > 0)
-                    {
-                        Decrypt(bufRead, ref bufWrite, read);
-                        wfs.Write(bufWrite, 0, read);
-                        crc += GetCRC(bufWrite, read);
-                    }
-                } while (read > 0);
-
-                wfs.Close();
-                wfs = null;
-                rfs.Close();
-                rfs = null;
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex.Message);
-                return false;
-            }
-            return true;
         }
 
         public static string Base64Encode(byte[] data)
@@ -224,6 +107,7 @@ namespace Devarc
         0xF5, 0xC8, 0x20, 0x6B, 0x87, 0xCD, 0x1B, 0x42, 0x73, 0x8B,
         0xA1, 0x74, 0x7C, 0x34, 0x93, 0x46
         };
+
         static byte[] decryptData = new byte[]
         {
         0x7E, 0x7D, 0x2B, 0x12, 0xC4, 0x99, 0x7B, 0x7C, 0x33, 0x8A,
