@@ -3,7 +3,7 @@
   "displayName": "Devarc encrypt library.",
   "version": "1.0.0",
   "unity": "2019.3",
-  "description": "Simple encryption for Unity.",
+  "description": "Simple encrypt library for Unity.",
   "keywords": [
     "Devarc",
     "Crypto",
