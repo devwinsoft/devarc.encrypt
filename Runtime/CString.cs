@@ -15,14 +15,14 @@ namespace Devarc
         public string Value
         {
             get { return ToString(); }
-            set { data = EncryptUtil.EncryptBase64(value); }
+            set { data = EncryptUtil.Encrypt_Base64(value); }
         }
 
         public override string ToString()
         {
             try
             {
-                return EncryptUtil.DecryptBase64(data);
+                return EncryptUtil.Decrypt_Base64(data);
             }
             catch (System.Exception ex)
             {
@@ -38,7 +38,7 @@ namespace Devarc
 
         public CString(string value)
         {
-            data = EncryptUtil.EncryptBase64(value);
+            data = EncryptUtil.Encrypt_Base64(value);
         }
     }
 

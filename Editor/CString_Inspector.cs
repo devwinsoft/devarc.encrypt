@@ -23,11 +23,11 @@ namespace Devarc
         protected override void OnGUIDrawProperty(Rect position, SerializedProperty property, GUIContent label)
         {
             SerializedProperty propData = property.FindPropertyRelative("data");
-            string prevValue = EncryptUtil.DecryptBase64(propData.stringValue);
+            string prevValue = EncryptUtil.Decrypt_Base64(propData.stringValue);
             string nextValue = EditorGUI.TextField(position, label.text, prevValue);
             if (string.Equals(prevValue, nextValue) == false)
             {
-                propData.stringValue = EncryptUtil.EncryptBase64(nextValue);
+                propData.stringValue = EncryptUtil.Encrypt_Base64(nextValue);
             }
         }
     }

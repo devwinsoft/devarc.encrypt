@@ -149,13 +149,13 @@ namespace Devarc
             return dest;
         }
 
-        public static string EncryptBase64(string _source)
+        public static string Encrypt_Base64(string _source)
         {
             var data = Encrypt(_source);
             return Base64Encode(data);
         }
 
-        public static string DecryptBase64(string _encrypted)
+        public static string Decrypt_Base64(string _encrypted)
         {
             var data = Base64Decode(_encrypted);
             return Decrypt(data);
@@ -191,6 +191,19 @@ namespace Devarc
                 _dest[i] = decryptData[_from[i]];
             }
             return Mathf.Min(_from.Length, _dest.Length);
+        }
+
+
+        public static string Encrypt_MD5(string value)
+        {
+            var md5 = MD5.Create();
+            byte[] data = md5.ComputeHash(Encoding.UTF8.GetBytes(value));
+            StringBuilder sBuilder = new StringBuilder();
+            for (int i = 0; i < data.Length; i++)
+            {
+                sBuilder.Append(data[i].ToString("x2"));
+            }
+            return sBuilder.ToString();
         }
     }
 }
