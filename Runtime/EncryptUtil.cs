@@ -6,6 +6,8 @@ using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 using UnityEngine;
+using System.Drawing;
+using System.Buffers.Text;
 
 
 namespace Devarc
@@ -63,20 +65,6 @@ namespace Devarc
             return crc;
         }
 
-        public static string Base64Encode(byte[] data)
-        {
-            byte[] dest = new byte[data.Length];
-            Encrypt(data, ref dest, data.Length);
-            return System.Convert.ToBase64String(dest);
-        }
-
-        public static byte[] Base64Decode(string base64)
-        {
-            byte[] encrypted = System.Convert.FromBase64String(base64);
-            byte[] data = new byte[encrypted.Length];
-            Decrypt(encrypted, ref data, encrypted.Length);
-            return data;
-        }
 
         static byte[] encryptData = new byte[]
         {
@@ -144,7 +132,7 @@ namespace Devarc
             byte[] dest = new byte[source.Length];
             for (int i = 0; i < source.Length; i++)
             {
-                dest[i] = encryptData[_source[i]];
+                dest[i] = encryptData[source[i]];
             }
             return dest;
         }
@@ -152,12 +140,12 @@ namespace Devarc
         public static string Encrypt_Base64(string _source)
         {
             var data = Encrypt(_source);
-            return Base64Encode(data);
+            return Convert.ToBase64String(data);
         }
 
         public static string Decrypt_Base64(string _encrypted)
         {
-            var data = Base64Decode(_encrypted);
+            var data = Convert.FromBase64String(_encrypted);
             return Decrypt(data);
         }
 
@@ -204,6 +192,65 @@ namespace Devarc
                 sBuilder.Append(data[i].ToString("x2"));
             }
             return sBuilder.ToString();
+        }
+
+
+        public static string Encrypt_TripleDES(string value)
+        {
+            MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+            var KEY = Encoding.UTF8.GetBytes("123456789012345678901234");
+            var VAL = Encoding.UTF8.GetBytes(value);
+            var IV = Encoding.UTF8.GetBytes("12345678");
+
+            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            tdes.Key = KEY;
+            tdes.IV = IV;
+            tdes.Mode = CipherMode.ECB;
+            tdes.Padding = PaddingMode.PKCS7;
+
+            ICryptoTransform cTransform = tdes.CreateEncryptor();
+            byte[] resultArray = cTransform.TransformFinalBlock(VAL, 0, VAL.Length);
+            tdes.Clear();
+
+            return Convert.ToBase64String(resultArray);
+        }
+
+        public static string Decrypt_TripleDES(string encrypted)
+        {
+            MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
+            var KEY = Encoding.UTF8.GetBytes("123456789012345678901234");
+            var VAL = Convert.FromBase64String(encrypted);
+            var IV = Encoding.UTF8.GetBytes("12345678");
+
+            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
+            tdes.Key = KEY;
+            tdes.IV = IV;
+            tdes.Mode = CipherMode.ECB;
+            tdes.Padding = PaddingMode.PKCS7;
+
+            ICryptoTransform cTransform = tdes.CreateDecryptor();
+            byte[] resultArray = cTransform.TransformFinalBlock(VAL, 0, VAL.Length);
+            tdes.Clear();
+
+            var result = UTF8Encoding.UTF8.GetString(resultArray);
+            return result;
+        }
+
+
+        static byte[] HexToByte(string strHex)
+        {
+            if (strHex.Length % 2 != 0)
+            {
+                throw new Exception("[EncryptUtil::HexToByte] Invalid string size.");
+            }
+
+            byte[] bytes = new byte[strHex.Length / 2];
+
+            for (int count = 0; count < strHex.Length; count += 2)
+            {
+                bytes[count / 2] = System.Convert.ToByte(strHex.Substring(count, 2), 16);
+            }
+            return bytes;
         }
     }
 }
