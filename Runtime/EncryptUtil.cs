@@ -2,13 +2,9 @@
 using UnityEditor;
 #endif
 using System;
-using System.IO;
 using System.Text;
 using System.Security.Cryptography;
 using UnityEngine;
-using System.Drawing;
-using System.Buffers.Text;
-
 
 namespace Devarc
 {
@@ -195,62 +191,52 @@ namespace Devarc
         }
 
 
-        public static string Encrypt_TripleDES(string value)
+        static string tdes_IV = "awwxewwo";
+        static string tdes_Key = "xiinwwwWwW@aw()r@@@rrrss";
+
+        public static string Encrypt_TripleDES(string input)
         {
-            MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-            var KEY = Encoding.UTF8.GetBytes("123456789012345678901234");
-            var VAL = Encoding.UTF8.GetBytes(value);
-            var IV = Encoding.UTF8.GetBytes("12345678");
-
-            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            tdes.Key = KEY;
-            tdes.IV = IV;
-            tdes.Mode = CipherMode.ECB;
-            tdes.Padding = PaddingMode.PKCS7;
-
-            ICryptoTransform cTransform = tdes.CreateEncryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(VAL, 0, VAL.Length);
-            tdes.Clear();
-
-            return Convert.ToBase64String(resultArray);
-        }
-
-        public static string Decrypt_TripleDES(string encrypted)
-        {
-            MD5CryptoServiceProvider hashmd5 = new MD5CryptoServiceProvider();
-            var KEY = Encoding.UTF8.GetBytes("123456789012345678901234");
-            var VAL = Convert.FromBase64String(encrypted);
-            var IV = Encoding.UTF8.GetBytes("12345678");
-
-            TripleDESCryptoServiceProvider tdes = new TripleDESCryptoServiceProvider();
-            tdes.Key = KEY;
-            tdes.IV = IV;
-            tdes.Mode = CipherMode.ECB;
-            tdes.Padding = PaddingMode.PKCS7;
-
-            ICryptoTransform cTransform = tdes.CreateDecryptor();
-            byte[] resultArray = cTransform.TransformFinalBlock(VAL, 0, VAL.Length);
-            tdes.Clear();
-
-            var result = UTF8Encoding.UTF8.GetString(resultArray);
-            return result;
-        }
-
-
-        static byte[] HexToByte(string strHex)
-        {
-            if (strHex.Length % 2 != 0)
+            try
             {
-                throw new Exception("[EncryptUtil::HexToByte] Invalid string size.");
+                TripleDES tripleDes = TripleDES.Create();
+                tripleDes.IV = Encoding.ASCII.GetBytes(tdes_IV);
+                tripleDes.Key = Encoding.ASCII.GetBytes(tdes_Key);
+                tripleDes.Mode = CipherMode.CBC;
+                //tripleDes.Padding = PaddingMode.Zeros;
+
+                ICryptoTransform crypto = tripleDes.CreateEncryptor();
+                byte[] decodedInput = Encoding.UTF8.GetBytes(input);
+                byte[] decryptedBytes = crypto.TransformFinalBlock(decodedInput, 0, decodedInput.Length);
+                return System.Convert.ToBase64String(decryptedBytes, 0, decryptedBytes.Length);
             }
-
-            byte[] bytes = new byte[strHex.Length / 2];
-
-            for (int count = 0; count < strHex.Length; count += 2)
+            catch (Exception ex)
             {
-                bytes[count / 2] = System.Convert.ToByte(strHex.Substring(count, 2), 16);
+                Debug.LogError(ex.Message);
+                return string.Empty;
             }
-            return bytes;
         }
+
+        public static string Decrypt_TripleDES(string input)
+        {
+            try
+            {
+                TripleDES tripleDes = TripleDES.Create();
+                tripleDes.IV = Encoding.ASCII.GetBytes(tdes_IV);
+                tripleDes.Key = Encoding.ASCII.GetBytes(tdes_Key);
+                tripleDes.Mode = CipherMode.CBC;
+                //tripleDes.Padding = PaddingMode.Zeros;
+
+                ICryptoTransform crypto = tripleDes.CreateDecryptor();
+                byte[] decodedInput = System.Convert.FromBase64String(input);
+                byte[] decryptedBytes = crypto.TransformFinalBlock(decodedInput, 0, decodedInput.Length);
+                return Encoding.UTF8.GetString(decryptedBytes);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex.Message);
+                return string.Empty;
+            }
+        }
+
     }
 }
